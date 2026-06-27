@@ -1,0 +1,32 @@
+{
+    "stage": "Stage 3: FiLM (v2 data)",
+    "script": "python -m mint_stability.train_stage3",
+    "source_checkpoint": "checkpoints/stage3v2_film_final/best_stage3_film.pt",
+    "best_epoch": 15,
+    "best_val_spearman": 0.9172,
+    "args": {
+        "mode": "film",
+        "data_dir": "data/stage3_v2",
+        "stage2_dir": "checkpoints/s2_stability",
+        "mint_checkpoint": "../../mint.ckpt",
+        "lr": 3e-05,
+        "bs": 16,
+        "num_epochs": 200,
+        "assay_emb_dim": 32,
+        "temp_emb_dim": 8,
+        "film_hidden_dim": 512,
+        "unfreeze_project": true,
+        "residual_hidden_dim": 64,
+        "residual_dropout": 0.0,
+        "fusion_dropout": 0.0,
+        "dropout": 0.0,
+        "weight_decay": 0.003,
+        "loss": "huber",
+        "huber_delta": 1.0,
+        "eval_bs": 64,
+        "eval_steps": 50,
+        "early_stopping": -1,
+        "output_dir": "checkpoints/s3_film",
+        "seed": 42
+    }
+}

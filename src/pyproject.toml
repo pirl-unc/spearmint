@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mint-stability"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = [
+    "torch>=2.0",
+    "transformers>=4.35",
+    "safetensors>=0.4",
+    "huggingface_hub>=0.19",
+    "pandas>=1.5",
+    "numpy>=1.23",
+    "scikit-learn>=1.4",
+    "scipy>=1.10",
+    "tqdm>=4.60",
+]
+
+[project.optional-dependencies]
+train = ["wandb", "accelerate>=0.24"]
+
+[tool.setuptools.packages.find]
+include = ["mint_stability*"]

@@ -1,0 +1,33 @@
+{
+    "stage": "Stage 2: Stability Prediction",
+    "script": "python -m mint_stability.train_stability",
+    "source_checkpoint": "checkpoints/mint_stage2_stability_strict/best_stability.pt",
+    "best_epoch": 55,
+    "best_test_spearman": 0.7906,
+    "args": {
+        "data_dir": "data/stability_strict",
+        "stage1_checkpoint": "checkpoints/s1_binding/best_mhc_binding.pt",
+        "mint_checkpoint": "../../mint.ckpt",
+        "use_multimer": true,
+        "task_type": "reg",
+        "num_epochs": 200,
+        "lr": 3e-05,
+        "bs": 16,
+        "freeze_percent": 0.7,
+        "hdim": 512,
+        "dropout": 0.2,
+        "reinit_head": false,
+        "log_transform": true,
+        "stability_score": false,
+        "eval_bs": 128,
+        "grad_accum_steps": 1,
+        "pos_weight": 1.0,
+        "early_stopping": -1,
+        "log_steps": 10,
+        "eval_steps": 250,
+        "val_subsample": 0,
+        "device": "cuda:0",
+        "output_dir": "checkpoints/s2_stability",
+        "seed": 42
+    }
+}

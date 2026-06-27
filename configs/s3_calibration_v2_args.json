@@ -1,0 +1,32 @@
+{
+    "stage": "Stage 3: Calibration (v2 data)",
+    "script": "python -m mint_stability.train_stage3",
+    "source_checkpoint": "checkpoints/stage3v2_calibration_final/best_stage3_calibration.pt",
+    "best_epoch": 24,
+    "best_val_spearman": 0.9155,
+    "args": {
+        "mode": "calibration",
+        "data_dir": "data/stage3_v2",
+        "stage2_dir": "checkpoints/s2_stability",
+        "mint_checkpoint": "../../mint.ckpt",
+        "lr": 0.0009,
+        "bs": 16,
+        "num_epochs": 200,
+        "assay_emb_dim": 4,
+        "temp_emb_dim": 4,
+        "film_hidden_dim": 128,
+        "unfreeze_project": false,
+        "residual_hidden_dim": 256,
+        "residual_dropout": 0.0,
+        "fusion_dropout": 0.0,
+        "dropout": 0.0,
+        "weight_decay": 0.001,
+        "loss": "huber",
+        "huber_delta": 0.5,
+        "eval_bs": 64,
+        "eval_steps": 50,
+        "early_stopping": -1,
+        "output_dir": "checkpoints/s3_calibration",
+        "seed": 42
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "stage": "Stage 1: MHC Binding Affinity",
+    "script": "python -m mint_stability.train_binding",
+    "source_checkpoint": "checkpoints/mint_stage1_mhc_binding_strict/best_mhc_binding.pt",
+    "best_epoch": 8,
+    "best_test_spearman": 0.7367,
+    "args": {
+        "data_dir": "data/binding_strict",
+        "checkpoint_path": "../../mint.ckpt",
+        "use_multimer": true,
+        "task_type": "reg",
+        "num_epochs": 20,
+        "lr": 3e-05,
+        "bs": 16,
+        "freeze_percent": 0.5,
+        "hdim": 512,
+        "dropout": 0.2,
+        "eval_bs": 128,
+        "grad_accum_steps": 1,
+        "pos_weight": 1.0,
+        "sample_pos": false,
+        "early_stopping": -1,
+        "log_steps": 10,
+        "eval_steps": 250,
+        "val_subsample": 0,
+        "device": "cuda:0",
+        "output_dir": "checkpoints/s1_binding",
+        "seed": 42
+    }
+}
