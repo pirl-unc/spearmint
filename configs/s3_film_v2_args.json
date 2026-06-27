@@ -7,7 +7,7 @@
     "args": {
         "mode": "film",
         "data_dir": "data/stage3_v2",
-        "stage2_dir": "checkpoints/s2_stability",
+        "stage2_checkpoint": "checkpoints/s2_stability/best_stability.pt",
         "mint_checkpoint": "../../mint.ckpt",
         "lr": 3e-05,
         "bs": 16,

@@ -1,61 +1,41 @@
-# SpearMINT: Assay-Conditioned Peptide–MHC Class I Stability Prediction
+# 🌿🧬🧫 SPEARMINT: Peptide:MHC Binding Stability Prediction Using Protein Language Models
 
-<!-- TODO: add badges once minted (Zenodo DOI, journal DOI). Template below mirrors the TCR-TRANSLATE repo. -->
 <!--
 [![DOI](https://zenodo.org/badge/DOI/XX.XXXX/zenodo.XXXXXXX.svg)](https://doi.org/XX.XXXX/zenodo.XXXXXXX)
 [![DOI:XX.XXXX/journal](http://img.shields.io/badge/DOI-Journal-B31B1B.svg)](https://doi.org/XX.XXXX/journal)
 -->
 
-Predicting the stability of peptide–MHC class I (pMHC-I) complexes is central to understanding antigen
+Predicting the stability of peptide–MHC class I (pMHC-I) complexes is a key component of modeling antigen
 presentation and prioritizing immunotherapy targets, yet stability measurements are scarce, noisy, and
-fragmented across incompatible assays. In this work we build on **MINT**, a multimer-aware ESM2 protein
-language model whose cross-chain attention operates over the *full* peptide and MHC sequences (rather than
-a fixed pseudo-sequence), and adapt it to stability prediction through staged transfer learning. We first
-fine-tune on the abundant peptide–MHC **binding-affinity** signal, transfer those representations to the
-smaller **stability** (half-life) regime, and finally introduce **SpearMINT**, a feature-wise linear
-modulation (FiLM) head that conditions predictions on **assay type and temperature**. This conditioning lets
-a single model learn jointly from heterogeneous multi-assay datasets while remaining calibrated to a common
-reference condition. We release the trained models in HuggingFace-compatible form, along with the data,
-configs, and code needed to reproduce the pipeline end-to-end.
+fragmented across assays whose measured values lack cross-assay consistency. In this work we build on **[MINT](https://github.com/VarunUllanat/mint)**, a multimer-aware ESM2 protein language model whose cross-chain attention operates over the full peptide and MHC sequences (rather than
+a fixed pseudo-sequence), and adapt it to stability prediction through staged transfer learning inspired by **[TLStab](https://github.com/KavrakiLab/TL-MHC/tree/master/TLStab)**. We first fine-tune on the abundant peptide–MHC binding-affinity signal, before transfering those representations to the smaller stability (half-life) regime, and finally learn an assay-aware recalibration head that conditions predictions on **assay type and temperature**. This conditioning lets a single model learn jointly from heterogeneous multi-assay datasets while remaining grounded to a common reference condition. We release the trained weights on [HuggingFace](https://huggingface.co/collections/dkarthikeyan1/spearmint) for ease of use, and use this repository as a store of data, configs, and code needed to retrain the models.
 
-<!-- TODO: add a one-paragraph results/contribution summary once finalized (avoid overclaiming until numbers are locked). -->
-
-<!-- TODO: add logo, e.g. ![](assets/spearmint_logo.png) -->
+![](assets/figure_1_overview_figure_simplified.png)
 
 ### How to use
 
-The trained models are released on the HuggingFace Hub as self-contained `trust_remote_code` modules, so
-**most users do not need to install this repository** — load a model directly with `transformers` in a few
-seconds (see [Model Usage](#model-usage) below).
+For the easiest way to try out the models, we make the trained weights available on the HuggingFace Hub as self-contained `trust_remote_code` modules, so users do not need to install this repository. Simply load a model directly with `transformers` in a few
+seconds (see [Model Usage](#model-usage) below). All three stages are available here:
 
-You only need a local install if you want to **train, convert checkpoints, or contribute**:
 
-```bash
-# from the repository root — only needed for training / conversion / development
-pip install -e src/
-```
-
-<!-- TODO: add HuggingFace model links once published, e.g.:
- * [SpearMINT — Stage 2 stability](https://huggingface.co/<org>/<repo>)
- * [SpearMINT — Stage 3 assay-conditioned](https://huggingface.co/<org>/<repo>)
--->
-
-The three stages:
+ * [MINT Stage 1 Affinity](https://huggingface.co/dkarthikeyan1/mint-stage1-affinity)
+ * [MINT Transfer Stage 2 Stability](https://huggingface.co/dkarthikeyan1/mint-stage2-stability)
+ * [SPEARMINT Stage 3 Assay-Conditioned](https://huggingface.co/dkarthikeyan1/spearmint)
 
 | Stage | Class | Task | Output |
 |-------|-------|------|--------|
-| **S1** | `MintStabilityForRegression` | Peptide–MHC binding affinity | scalar |
-| **S2** | `MintStabilityForRegression` | Stability (half-life) | half-life, hours |
+| **S1** | `MintStabilityForRegression` | Peptide-MHC binding affinity | $1 - \frac{\log(\text{IC50}_{\text{nM}})}{\log(50000)}$ |
+| **S2** | `MintStabilityForRegression` | Stability (half-life) | `log1p(hours)` |
 | **S3** | `SpearmintForStabilityPrediction` | Assay/temperature-conditioned stability | `log1p(hours)` |
 
 > **Sequence note:** provide the **full MHC class I alpha-chain sequence** (~365 residues), *not* a
 > 34-residue pseudo-sequence. MINT's multimer attention models residue-level cross-chain interactions, so
-> the complete sequence carries signal a pseudo-sequence discards.
+> the complete sequence carries signal a pseudo-sequence discards. For examples of common alleles, check out '\refs'.
 
 ### Model Usage
 
-The flagship **SpearMINT** model (Stage 3) predicts pMHC-I stability conditioned on assay type and
-temperature. Load it straight from the Hub with `trust_remote_code=True` — no local install required.
+The flagship **SPEAMINT** model (Stage 3) predicts pMHC-I stability conditioned on assay type and
+temperature. Load it straight from the HF Hub with `trust_remote_code=True` no local installation required.
 
 **Single prediction:**
 
@@ -114,9 +94,10 @@ with torch.no_grad():
 
 The Stage 1 (binding) and Stage 2 (stability) models load the same way via
 `AutoModel.from_pretrained(..., trust_remote_code=True)` with `MintTokenizer` (no `assay` /
-`temperature_c` arguments); the Stage 2 model returns a stability scalar directly.
+`temperature_c` arguments). **Stage 2** outputs `log1p(hours)` like Stage 3 — apply
+`math.expm1(...)` to the logit to recover half-life in hours. **Stage 1** outputs the
+binding-affinity score directly in `[0, 1]` (no transform).
 
-<!-- TODO: link a Colab demo if/when available. -->
 
 ### Repository Structure
 
@@ -135,12 +116,20 @@ spearmint/
 │   ├── convert_checkpoint.py  # .pt -> HuggingFace conversion (+ verification)
 │   └── build_hf.py            # Self-contained trust_remote_code file generation
 ├── tests/                   # Test suite
-├── configs/                 # Per-stage args + sweep configs
+├── configs/                 # Per-stage args + aux configs
 ├── data/                    # binding_affinity / binding_stability / stage3_assay_conditioning
 └── results/                 # Predictions and downstream evaluations
 ```
 
 ### Model Retraining 
+
+
+If you would like **train, re-train, or contribute** then you can easily install the contents of this repository using pip:
+
+```bash
+# from the repository root — only needed for training / conversion / development
+pip install -e src/
+```
 
 Each stage reads `train.csv` / `val.csv` / `test.csv` from a data directory and writes a checkpoint:
 
@@ -152,7 +141,7 @@ python -m mint_stability.train_binding   --data_dir data/binding_affinity       
 python -m mint_stability.train_stability --data_dir data/binding_stability       --stage1_checkpoint <s1.pt>   --mint_checkpoint <mint.ckpt> --use_multimer
 
 # Stage 3 — assay-conditioned (FiLM) stability
-python -m mint_stability.train_stage3 --mode film --data_dir data/stage3_assay_conditioning --stage2_dir <s2_dir>
+python -m mint_stability.train_stage3 --mode film --data_dir data/stage3_assay_conditioning --stage2_checkpoint <s2_dir>/best_stability.pt
 ```
 
 Default hyperparameters per stage are in `configs/`. Run the test suite with `python -m pytest`.
@@ -182,7 +171,7 @@ For more information please reach out to us at: {dkarthikeyan1, alex.rubinsteyn}
 }
 ```
 
-This work builds on the MINT protein language model; please also cite the original MINT publication.
+This code builds heavily on the MINT protein language model as implemented in its [original codebase](https://github.com/VarunUllanat/mint); please also consider citing the original MINT publication.
 ```
 @article{ullanat2026learning,
   title={Learning the language of protein-protein interactions},

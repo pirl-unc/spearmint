@@ -105,7 +105,7 @@ Train assay/temperature-conditioned models on top of Stage 2. Three conditioning
 python -m mint_stability.train_stage3 \
     --mode film \
     --data_dir data/stage3_v2 \
-    --stage2_dir checkpoints/stage2_stability \
+    --stage2_checkpoint checkpoints/stage2_stability/best_stability.pt \
     --output_dir checkpoints/stage3_film \
     --lr 5e-5 \
     --num_epochs 200 \
@@ -115,14 +115,14 @@ python -m mint_stability.train_stage3 \
 python -m mint_stability.train_stage3 \
     --mode calibration \
     --data_dir data/stage3_v2 \
-    --stage2_dir checkpoints/stage2_stability \
+    --stage2_checkpoint checkpoints/stage2_stability/best_stability.pt \
     --output_dir checkpoints/stage3_calibration
 
 # Additive (residual fusion)
 python -m mint_stability.train_stage3 \
     --mode additive \
     --data_dir data/stage3_v2 \
-    --stage2_dir checkpoints/stage2_stability \
+    --stage2_checkpoint checkpoints/stage2_stability/best_stability.pt \
     --output_dir checkpoints/stage3_additive
 ```
 
@@ -132,13 +132,13 @@ accelerate launch --multi_gpu --num_processes 4 \
     -m mint_stability.train_stage3 \
     --mode film \
     --data_dir data/stage3_v2 \
-    --stage2_dir checkpoints/stage2_stability \
+    --stage2_checkpoint checkpoints/stage2_stability/best_stability.pt \
     --output_dir checkpoints/stage3_film
 ```
 
 Key arguments:
 - `--mode`: `film`, `calibration`, or `additive`
-- `--stage2_dir`: Directory containing `best_stability.pt` from Stage 2
+- `--stage2_checkpoint`: Path to the Stage 2 `best_stability.pt` checkpoint (a directory is also accepted)
 - `--unfreeze_project`: Unfreeze Stage 2 projection head (film/additive only)
 - `--ablate_temp`: Zero out temperature embedding (for ablation studies)
 - `--loss`: `mse` or `huber` (default: huber)

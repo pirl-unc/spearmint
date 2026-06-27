@@ -18,20 +18,20 @@ Usage:
     # Single GPU -- FiLM
     python -m mint_stability.train_stage3 --mode film \
         --data_dir data/stage3_v2 \
-        --stage2_dir checkpoints/mint_stage2_stability_strict \
+        --stage2_checkpoint checkpoints/mint_stage2_stability_strict/best_stability.pt \
         --output_dir checkpoints/stage3_film
 
     # Multi GPU -- Calibration
     accelerate launch --multi_gpu --num_processes 4 \
         -m mint_stability.train_stage3 --mode calibration \
         --data_dir data/stage3_v2 \
-        --stage2_dir checkpoints/mint_stage2_stability_strict \
+        --stage2_checkpoint checkpoints/mint_stage2_stability_strict/best_stability.pt \
         --output_dir checkpoints/stage3_calibration
 
     # Single GPU -- Additive
     python -m mint_stability.train_stage3 --mode additive \
         --data_dir data/stage3_v2 \
-        --stage2_dir checkpoints/mint_stage2_stability_strict \
+        --stage2_checkpoint checkpoints/mint_stage2_stability_strict/best_stability.pt \
         --output_dir checkpoints/stage3_additive
 """
 
@@ -834,7 +834,9 @@ def main():
     parser.add_argument("--temp_col", type=str, default="temperature_C")
 
     # Checkpoints
-    parser.add_argument("--stage2_dir", type=str, default=None)
+    parser.add_argument("--stage2_checkpoint", type=str, default=None,
+                        help="Stage 2 checkpoint .pt (e.g. <dir>/best_stability.pt); "
+                             "a directory is also accepted and resolves to best_stability.pt")
     parser.add_argument("--mint_checkpoint", type=str, default=None)
     parser.add_argument("--config_path", type=str, default=None)
 
@@ -888,8 +890,8 @@ def main():
         parser.error("--mode is required (via CLI or --config)")
     if args.data_dir is None:
         parser.error("--data_dir is required (via CLI or --config)")
-    if args.stage2_dir is None:
-        parser.error("--stage2_dir is required (via CLI or --config)")
+    if args.stage2_checkpoint is None:
+        parser.error("--stage2_checkpoint is required (via CLI or --config)")
 
     # Warn on mode-specific args that don't apply to the chosen mode
     _MODE_SPECIFIC = {
@@ -921,7 +923,9 @@ def main():
     # -----------------------------------------------------------------------
     # Load Stage 2 checkpoint
     # -----------------------------------------------------------------------
-    stage2_path = os.path.join(args.stage2_dir, "best_stability.pt")
+    stage2_path = args.stage2_checkpoint
+    if os.path.isdir(stage2_path):
+        stage2_path = os.path.join(stage2_path, "best_stability.pt")
     stage2_ckpt = torch_load(stage2_path, map_location="cpu", weights_only=False)
     s2_args = stage2_ckpt.get("args", {})
 
