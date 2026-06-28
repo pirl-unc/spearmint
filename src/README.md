@@ -53,18 +53,10 @@ The `mhc_sequence` column should contain the **full MHC alpha chain** (~365 resi
 Fine-tune MINT backbone on peptide-MHC binding affinity data.
 
 ```bash
-python -m mint_stability.train_binding \
-    --data_dir data/binding_affinity \
-    --checkpoint_path /path/to/mint.ckpt \
-    --use_multimer \
-    --task_type reg \
-    --num_epochs 20 \
-    --lr 5e-4 \
-    --bs 32 \
-    --freeze_percent 0.5 \
-    --device cuda:0 \
-    --output_dir checkpoints/stage1_binding \
-    --seed 42
+# Reproduces the published Stage 1 run — all hyperparameters live in the config.
+# Supply your local MINT base checkpoint via --checkpoint_path (CLI flags override the config):
+python -m mint_stability.train_binding --config configs/s1_binding_args.json \
+    --checkpoint_path /path/to/mint.ckpt
 ```
 
 Key arguments:
@@ -81,20 +73,9 @@ Output: `checkpoints/stage1_binding/best_mhc_binding.pt`
 Double fine-tune on stability data, loading the Stage 1 checkpoint.
 
 ```bash
-python -m mint_stability.train_stability \
-    --data_dir data/binding_stability \
-    --stage1_checkpoint checkpoints/stage1_binding/best_mhc_binding.pt \
-    --mint_checkpoint /path/to/mint.ckpt \
-    --log_transform \
-    --use_multimer \
-    --task_type reg \
-    --num_epochs 30 \
-    --lr 1e-4 \
-    --bs 16 \
-    --freeze_percent 0.7 \
-    --device cuda:0 \
-    --output_dir checkpoints/stage2_stability \
-    --seed 42
+# Reproduces the published Stage 2 run (transfers from Stage 1; log1p labels etc. all in the config):
+python -m mint_stability.train_stability --config configs/s2_stability_args.json \
+    --mint_checkpoint /path/to/mint.ckpt
 ```
 
 Key arguments:
@@ -111,39 +92,22 @@ Output: `checkpoints/stage2_stability/best_stability.pt`
 Train assay/temperature-conditioned models on top of Stage 2. Three conditioning modes:
 
 ```bash
-# FiLM (Feature-wise Linear Modulation) — recommended
-python -m mint_stability.train_stage3 \
-    --mode film \
-    --data_dir data/stage3_assay_conditioning \
-    --stage2_checkpoint checkpoints/stage2_stability/best_stability.pt \
-    --output_dir checkpoints/stage3_film \
-    --lr 5e-5 \
-    --num_epochs 200 \
-    --seed 42
+# FiLM — the released SPEARMINT model (emb dims, unfreeze_project, loss, etc. all in the config)
+python -m mint_stability.train_stage3 --config configs/s3_film_v2_args.json \
+    --mint_checkpoint /path/to/mint.ckpt
 
-# Calibration (per-assay affine + residual MLP)
-python -m mint_stability.train_stage3 \
-    --mode calibration \
-    --data_dir data/stage3_assay_conditioning \
-    --stage2_checkpoint checkpoints/stage2_stability/best_stability.pt \
-    --output_dir checkpoints/stage3_calibration
+# Calibration variant
+python -m mint_stability.train_stage3 --config configs/s3_calibration_v2_args.json \
+    --mint_checkpoint /path/to/mint.ckpt
 
-# Additive (residual fusion)
-python -m mint_stability.train_stage3 \
-    --mode additive \
-    --data_dir data/stage3_assay_conditioning \
-    --stage2_checkpoint checkpoints/stage2_stability/best_stability.pt \
-    --output_dir checkpoints/stage3_additive
+# (Additive is also a supported `--mode additive`, without a bundled v2 config.)
 ```
 
 Multi-GPU with Accelerate:
 ```bash
 accelerate launch --multi_gpu --num_processes 4 \
-    -m mint_stability.train_stage3 \
-    --mode film \
-    --data_dir data/stage3_assay_conditioning \
-    --stage2_checkpoint checkpoints/stage2_stability/best_stability.pt \
-    --output_dir checkpoints/stage3_film
+    -m mint_stability.train_stage3 --config configs/s3_film_v2_args.json \
+    --mint_checkpoint /path/to/mint.ckpt
 ```
 
 Key arguments:

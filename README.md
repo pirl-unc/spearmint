@@ -111,13 +111,13 @@ Each stage reads `train.csv` / `val.csv` / `test.csv` from a data directory and 
 
 ```bash
 # Stage 1 — binding affinity
-python -m mint_stability.train_binding   --data_dir data/binding_affinity        --checkpoint_path <mint.ckpt> --use_multimer
+python -m mint_stability.train_binding   --config configs/s1_binding_args.json    --checkpoint_path <mint.ckpt>
 
-# Stage 2 — stability (transfer from Stage 1)
-python -m mint_stability.train_stability --data_dir data/binding_stability       --stage1_checkpoint <s1.pt>   --mint_checkpoint <mint.ckpt> --use_multimer --log_transform
+# Stage 2 — stability (transfers from Stage 1)
+python -m mint_stability.train_stability --config configs/s2_stability_args.json  --mint_checkpoint <mint.ckpt>
 
-# Stage 3 — assay-conditioned (FiLM) stability
-python -m mint_stability.train_stage3 --mode film --data_dir data/stage3_assay_conditioning --stage2_checkpoint <s2_dir>/best_stability.pt
+# Stage 3 — assay-conditioned SPEARMINT (FiLM)
+python -m mint_stability.train_stage3    --config configs/s3_film_v2_args.json    --mint_checkpoint <mint.ckpt>
 ```
 
 Default hyperparameters per stage are in `configs/`. Run the test suite with `python -m pytest`.
