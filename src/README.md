@@ -13,6 +13,15 @@ pip install wandb           # for experiment tracking (--wandb_project)
 pip install accelerate      # for multi-GPU Stage 3 training
 ```
 
+## Running Tests
+
+```bash
+# from the repository root
+python -m pytest tests/ -v
+```
+
+~100 tests covering backbone, models, tokenizers, training components, and HF build pipeline.
+
 ## Data Format
 
 All stages expect `train.csv`, `val.csv`, `test.csv` in a data directory.
@@ -146,7 +155,7 @@ Key arguments:
 
 Output: `checkpoints/stage3_film/best_stage3_film.pt`
 
-## Converting Checkpoints to HuggingFace Format
+## Deployment
 
 After training, convert checkpoints to HF format for distribution:
 
@@ -165,12 +174,3 @@ python -m mint_stability.convert_checkpoint \
     --output_dir ./spearmint \
     --verify
 ```
-
-## Running Tests
-
-```bash
-# from the repository root
-python -m pytest tests/ -v
-```
-
-109 tests covering backbone, models, tokenizers, training components, and HF build pipeline.
