@@ -5,7 +5,7 @@
     "best_epoch": 8,
     "best_test_spearman": 0.7367,
     "args": {
-        "data_dir": "data/binding_strict",
+        "data_dir": "data/binding_affinity",
         "checkpoint_path": "../../mint.ckpt",
         "use_multimer": true,
         "task_type": "reg",

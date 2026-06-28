@@ -5,7 +5,7 @@ Training scripts for the MINT peptide-MHC stability prediction pipeline. All thr
 ## Prerequisites
 
 ```bash
-# From the MHC-Stability/ directory
+# From the repository root
 pip install -e src/
 
 # Optional (only needed at runtime, not for imports/tests)
@@ -45,10 +45,10 @@ Fine-tune MINT backbone on peptide-MHC binding affinity data.
 
 ```bash
 python -m mint_stability.train_binding \
-    --data_dir data/binding_strict \
+    --data_dir data/binding_affinity \
     --checkpoint_path /path/to/mint.ckpt \
     --use_multimer \
-    --task_type cls \
+    --task_type reg \
     --num_epochs 20 \
     --lr 5e-4 \
     --bs 32 \
@@ -73,9 +73,10 @@ Double fine-tune on stability data, loading the Stage 1 checkpoint.
 
 ```bash
 python -m mint_stability.train_stability \
-    --data_dir data/stability_strict \
+    --data_dir data/binding_stability \
     --stage1_checkpoint checkpoints/stage1_binding/best_mhc_binding.pt \
     --mint_checkpoint /path/to/mint.ckpt \
+    --log_transform \
     --use_multimer \
     --task_type reg \
     --num_epochs 30 \
@@ -104,7 +105,7 @@ Train assay/temperature-conditioned models on top of Stage 2. Three conditioning
 # FiLM (Feature-wise Linear Modulation) — recommended
 python -m mint_stability.train_stage3 \
     --mode film \
-    --data_dir data/stage3_v2 \
+    --data_dir data/stage3_assay_conditioning \
     --stage2_checkpoint checkpoints/stage2_stability/best_stability.pt \
     --output_dir checkpoints/stage3_film \
     --lr 5e-5 \
@@ -114,14 +115,14 @@ python -m mint_stability.train_stage3 \
 # Calibration (per-assay affine + residual MLP)
 python -m mint_stability.train_stage3 \
     --mode calibration \
-    --data_dir data/stage3_v2 \
+    --data_dir data/stage3_assay_conditioning \
     --stage2_checkpoint checkpoints/stage2_stability/best_stability.pt \
     --output_dir checkpoints/stage3_calibration
 
 # Additive (residual fusion)
 python -m mint_stability.train_stage3 \
     --mode additive \
-    --data_dir data/stage3_v2 \
+    --data_dir data/stage3_assay_conditioning \
     --stage2_checkpoint checkpoints/stage2_stability/best_stability.pt \
     --output_dir checkpoints/stage3_additive
 ```
@@ -131,7 +132,7 @@ Multi-GPU with Accelerate:
 accelerate launch --multi_gpu --num_processes 4 \
     -m mint_stability.train_stage3 \
     --mode film \
-    --data_dir data/stage3_v2 \
+    --data_dir data/stage3_assay_conditioning \
     --stage2_checkpoint checkpoints/stage2_stability/best_stability.pt \
     --output_dir checkpoints/stage3_film
 ```
@@ -168,8 +169,8 @@ python -m mint_stability.convert_checkpoint \
 ## Running Tests
 
 ```bash
-cd downstream/MHC-Stability
+# from the repository root
 python -m pytest tests/ -v
 ```
 
-100 tests covering backbone, models, tokenizers, training components, and HF build pipeline.
+109 tests covering backbone, models, tokenizers, training components, and HF build pipeline.

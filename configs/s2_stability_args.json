@@ -5,7 +5,7 @@
     "best_epoch": 55,
     "best_test_spearman": 0.7906,
     "args": {
-        "data_dir": "data/stability_strict",
+        "data_dir": "data/binding_stability",
         "stage1_checkpoint": "checkpoints/s1_binding/best_mhc_binding.pt",
         "mint_checkpoint": "../../mint.ckpt",
         "use_multimer": true,

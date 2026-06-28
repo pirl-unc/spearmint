@@ -30,11 +30,11 @@ seconds (see [Model Usage](#model-usage) below). All three stages are available 
 
 > **Sequence note:** provide the **full MHC class I alpha-chain sequence** (~365 residues), *not* a
 > 34-residue pseudo-sequence. MINT's multimer attention models residue-level cross-chain interactions, so
-> the complete sequence carries signal a pseudo-sequence discards. For examples of common alleles, check out '\refs'.
+> the complete sequence carries signal a pseudo-sequence discards. For examples of common alleles, check out `refs/`.
 
 ### Model Usage
 
-The flagship **SPEAMINT** model (Stage 3) predicts pMHC-I stability conditioned on assay type and
+The flagship **SPEARMINT** model (Stage 3) predicts pMHC-I stability conditioned on assay type and
 temperature. Load it straight from the HF Hub with `trust_remote_code=True` no local installation required.
 
 **Single prediction:**
@@ -98,6 +98,30 @@ The Stage 1 (binding) and Stage 2 (stability) models load the same way via
 `math.expm1(...)` to the logit to recover half-life in hours. **Stage 1** outputs the
 binding-affinity score directly in `[0, 1]` (no transform).
 
+### Model Retraining 
+
+If you would like **train, re-train, or contribute** then you can easily install the contents of this repository using pip:
+
+```bash
+# from the repository root — only needed for training / conversion / development
+pip install -e src/
+```
+
+Each stage reads `train.csv` / `val.csv` / `test.csv` from a data directory and writes a checkpoint:
+
+```bash
+# Stage 1 — binding affinity
+python -m mint_stability.train_binding   --data_dir data/binding_affinity        --checkpoint_path <mint.ckpt> --use_multimer
+
+# Stage 2 — stability (transfer from Stage 1)
+python -m mint_stability.train_stability --data_dir data/binding_stability       --stage1_checkpoint <s1.pt>   --mint_checkpoint <mint.ckpt> --use_multimer --log_transform
+
+# Stage 3 — assay-conditioned (FiLM) stability
+python -m mint_stability.train_stage3 --mode film --data_dir data/stage3_assay_conditioning --stage2_checkpoint <s2_dir>/best_stability.pt
+```
+
+Default hyperparameters per stage are in `configs/`. Run the test suite with `python -m pytest`.
+
 
 ### Repository Structure
 
@@ -120,31 +144,6 @@ spearmint/
 ├── data/                    # binding_affinity / binding_stability / stage3_assay_conditioning
 └── results/                 # Predictions and downstream evaluations
 ```
-
-### Model Retraining 
-
-
-If you would like **train, re-train, or contribute** then you can easily install the contents of this repository using pip:
-
-```bash
-# from the repository root — only needed for training / conversion / development
-pip install -e src/
-```
-
-Each stage reads `train.csv` / `val.csv` / `test.csv` from a data directory and writes a checkpoint:
-
-```bash
-# Stage 1 — binding affinity
-python -m mint_stability.train_binding   --data_dir data/binding_affinity        --checkpoint_path <mint.ckpt> --use_multimer
-
-# Stage 2 — stability (transfer from Stage 1)
-python -m mint_stability.train_stability --data_dir data/binding_stability       --stage1_checkpoint <s1.pt>   --mint_checkpoint <mint.ckpt> --use_multimer
-
-# Stage 3 — assay-conditioned (FiLM) stability
-python -m mint_stability.train_stage3 --mode film --data_dir data/stage3_assay_conditioning --stage2_checkpoint <s2_dir>/best_stability.pt
-```
-
-Default hyperparameters per stage are in `configs/`. Run the test suite with `python -m pytest`.
 
 ### Contributing
 

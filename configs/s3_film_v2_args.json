@@ -6,7 +6,7 @@
     "best_val_spearman": 0.9172,
     "args": {
         "mode": "film",
-        "data_dir": "data/stage3_v2",
+        "data_dir": "data/stage3_assay_conditioning",
         "stage2_checkpoint": "checkpoints/s2_stability/best_stability.pt",
         "mint_checkpoint": "../../mint.ckpt",
         "lr": 3e-05,
