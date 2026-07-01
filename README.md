@@ -158,15 +158,16 @@ For more information please reach out to us at: {dkarthikeyan1, alex.rubinsteyn}
 
 ```
 @article{dkarthikeyan2026stability,
-  author  = {Karthikeyan, Dhuvarakesh and Vincent, Benjamin and Rubinsteyn, Alexander},
-  title = {Peptide:MHC Binding Stability Prediction Using Protein Language Models},
-  year = {2026},
-  doi = {TODO},
-  publisher = {Cold Spring Harbor Laboratory},
-  abstract = {Peptide-MHC class I (pMHC-I) binding stability governs the persistence of antigenic complexes at the cell surface and plays a key role in facilitating downstream immunological signals such as antigen presentation, T-cell activation, and immunodominance. However, methods for in silico stability prediction remain underexplored relative to binding affinity prediction, in part because available half-life datasets are sparse and expensive to collect. Here, we perform a a systematic reassessment of pMHC-I stability prediction using controlled, similarity-aware data splits and apply a recently introduced supervised transfer-learning strategy to MINT, an interaction-aware protein language model, is pretrained on binding affinity and fine-tuned for quantitative half-life prediction. We show that MINT improves stability prediction over standard ESM-2 representations and existing predictors, and that assay-conditioned recalibration corrects systematic shifts across experimental measurement modalities. Across eluted ligand, immunogenicity, and personalized neoantigen prioritization benchmarks, predicted stability provides signal beyond binding affinity, enriching for naturally presented and immunogenic peptides within affinity-filtered candidate sets. These results establish pMHC-I half-life as an orthogonal and transferable biophysical signal connecting peptide binding, surface presentation, and T-cell recognition, and provide a leakage-aware, assay-aware framework for future antigen-presentation modeling.},
-  URL = {TODO},
-  eprint = {TODO},
-  journal = {bioRxiv}
+	author = {Karthikeyan, Dhuvarakesh and Vincent, Benjamin and Rubinsteyn, Alexander},
+	title = {Peptide:MHC Binding Stability Prediction Using Protein Language Models},
+	elocation-id = {2026.06.28.735023},
+	year = {2026},
+	doi = {10.64898/2026.06.28.735023},
+	publisher = {Cold Spring Harbor Laboratory},
+	abstract = {Peptide:MHC class I (pMHC-I) binding stability governs the persistence of antigenic complexes at the cell surface and plays a key role in facilitating downstream immunological signals such as antigen presentation, T-cell activation, and immunodominance. However, methods for in silico stability prediction remain underexplored relative to binding affinity prediction, in part because available half-life datasets are sparse and expensive to collect. Here, we perform a systematic reassessment of pMHC-I stability prediction using controlled, similarity-aware data splits and apply a recently introduced supervised transfer-learning strategy to MINT, an interaction-aware protein language model, pretrained on binding affinity and fine-tuned for quantitative half-life prediction. We show that MINT improves stability prediction over standard ESM-2 representations and existing predictors, and that assay-conditioned recalibration corrects systematic shifts across experimental measurement modalities. Across eluted ligand, immunogenicity, and personalized neoantigen prioritization benchmarks, predicted stability provides signal beyond binding affinity, enriching for naturally presented and immunogenic peptides within affinity-filtered candidate sets. These results establish pMHC-I half-life as an orthogonal and transferable biophysical signal connecting peptide binding, surface presentation, and T-cell recognition, and provide a leakage-aware, assay-aware framework for future antigen-presentation modeling.Competing Interest StatementThe authors have declared no competing interest.},
+	URL = {https://www.biorxiv.org/content/early/2026/06/29/2026.06.28.735023},
+	eprint = {https://www.biorxiv.org/content/early/2026/06/29/2026.06.28.735023.full.pdf},
+	journal = {bioRxiv}
 }
 ```
 
